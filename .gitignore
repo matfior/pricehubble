@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+venv/
+
+.DS_Store
+
+# Project specific
+data/output/
+*.duckdb
+*.duckdb.wal
+property_pipeline-deployment.yaml
+prefect.yaml

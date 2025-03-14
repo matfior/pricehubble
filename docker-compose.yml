@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=prefect
+      - POSTGRES_PASSWORD=prefect
+      - POSTGRES_DB=prefect
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prefect"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  prefect:
+    build: .
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./:/app
+      - prefect-data:/root/.prefect
+    environment:
+      - PREFECT_SERVER_API_HOST=0.0.0.0
+      - PREFECT_UI_API_URL=http://localhost:4200/api
+      - PREFECT_API_URL=http://localhost:4200/api
+      - PREFECT_SERVER_DATABASE_CONNECTION_URL=postgresql+asyncpg://prefect:prefect@postgres:5432/prefect
+      - PREFECT_API_DATABASE_CONNECTION_URL=postgresql+asyncpg://prefect:prefect@postgres:5432/prefect
+      - PREFECT_SERVER_DATABASE_MIGRATE_ON_START=true
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: prefect server start
+
+  worker:
+    build: .
+    depends_on:
+      - prefect
+    volumes:
+      - ./:/app
+      - prefect-data:/root/.prefect
+    environment:
+      - PREFECT_API_URL=http://prefect:4200/api
+      - PYTHONPATH=/app
+    command: bash -c "sleep 20 && prefect work-pool create default-agent-pool --type process && prefect worker start -p default-agent-pool -t process"
+
+volumes:
+  prefect-data:
+  postgres-data: 
