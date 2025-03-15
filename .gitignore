@@ -2,6 +2,7 @@
 __pycache__/
 venv/
 
+# IDE
 .DS_Store
 
 # Project specific
@@ -9,4 +10,3 @@ data/output/
 *.duckdb
 *.duckdb.wal
 property_pipeline-deployment.yaml
-prefect.yaml
