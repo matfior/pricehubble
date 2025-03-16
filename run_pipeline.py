@@ -3,6 +3,7 @@ import argparse
 import logging
 import sys
 from pathlib import Path
+import duckdb
 
 # Configure logging
 logging.basicConfig(
@@ -21,16 +22,29 @@ def parse_args():
 def run_local():
     """Run the pipeline locally without Prefect."""
     from src.flow import extract_transform, filter_data, generate_stats
-    from config.settings import INPUT_FILE
+    from config.settings import INPUT_FILE, DB_PATH
     
     logger.info("Running pipeline in local mode")
     
-    # Run pipeline steps
-    extract_transform(INPUT_FILE)
-    filter_data()
-    generate_stats()
+    # Create a single database connection
+    conn = duckdb.connect(str(DB_PATH))
     
-    logger.info("Pipeline completed successfully")
+    try:
+        # Run pipeline steps with the same connection
+        total_records = extract_transform(INPUT_FILE, conn)
+        logger.info(f"Extracted and transformed {total_records} records")
+        
+        filtered_count = filter_data(conn)
+        logger.info(f"Filtered down to {filtered_count} records")
+        
+        stats = generate_stats(conn)
+        logger.info(f"Generated statistics: {stats}")
+        
+        logger.info("Pipeline completed successfully")
+    finally:
+        # Always close the connection
+        conn.close()
+        logger.info("Database connection closed")
 
 def run_prefect():
     """Run the pipeline using Prefect."""

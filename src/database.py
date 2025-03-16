@@ -1,13 +1,14 @@
 import duckdb
 import pandas as pd
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 from config.settings import DB_PATH, TABLE_NAME
 
-def init_db() -> duckdb.DuckDBPyConnection:
+def init_db(conn: Optional[duckdb.DuckDBPyConnection] = None) -> duckdb.DuckDBPyConnection:
     """Initialize DuckDB connection and create table if it doesn't exist."""
-    conn = duckdb.connect(str(DB_PATH))
+    if conn is None:
+        conn = duckdb.connect(str(DB_PATH))
     
     # Drop existing table if it exists
     conn.execute(f"DROP TABLE IF EXISTS {TABLE_NAME}")
