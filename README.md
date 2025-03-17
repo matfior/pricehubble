@@ -17,24 +17,24 @@ This pipeline performs the following operations:
 ## Project Structure
 
 ```
-property_pipeline/
+pricehubble/
 ├── config/
-│   └── settings.py         # Configuration settings
+│   └── settings.py         # Configuration settings (filters, paths, database settings)
 ├── data/
-│   ├── scraping_data.jsonl # Input data
-│   └── output/             # Output directory for DuckDB
+│   ├── scraping_data.jsonl # Raw property data in JSONL format
+│   └── output/             # Generated files
 ├── src/
-│   ├── database.py         # DuckDB operations
-│   ├── flow.py             # Prefect flow definition
-│   ├── models.py           # Data models
-│   └── processor.py        # Data processing logic
+│   ├── database.py         # Database operations (init, insert, filter, stats)
+│   ├── flow.py             # Prefect flow and task definitions
+│   ├── models.py           # Data models and validation schemas
+│   └── processor.py        # Data processing and transformation logic
 ├── tests/
-│   └── test_processor.py   # Unit tests
-├── Dockerfile              # Docker configuration
-├── docker-compose.yml      # Docker Compose configuration
-├── requirements.txt        # Python dependencies
-├── run_pipeline.py         # CLI script to run the pipeline
-└── README.md               # This file
+│   └── test_processor.py   # Unit tests for data processing functions
+├── Dockerfile              # Container configuration for Prefect and worker
+├── docker-compose.yml      # Multi-service configuration (Prefect, PostgreSQL, worker)
+├── requirements.txt        # Python package dependencies
+├── run_pipeline.py         # CLI script for pipeline execution
+└── README.md               # Project documentation
 ```
 
 ## Prerequisites
